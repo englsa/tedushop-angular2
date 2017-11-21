@@ -49,7 +49,7 @@ export class DataService {
     if(error.status ==401){
       localStorage.removeItem(SystemConstants.CURRENT_USER);
       this._notificationService.printErrorMessage(MessageContstants.LOGIN_AGAIN_MSG)
-      this._ultilityService.navigateRoLogin();
+      this._ultilityService.navigateToLogin();
     }else{
       let errMsg = (error.message)? error.message: 
       error.status ? `${error.status} - ${error.statusText}`:'Lỗi hệ thống';

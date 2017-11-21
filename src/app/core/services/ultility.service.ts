@@ -5,7 +5,7 @@ import { UrlConstants } from '../../core/common/url.constants';
 import { AuthenService } from './authen.service';
 
 @Injectable()
-export class UtilityService {
+export class UltilityService {
   private _router: Router;
 
   constructor(router: Router, private http: Http, private authenService: AuthenService) {
