@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import {SystemConstants} from '../core/common/system.constants';
+import {UrlConstants} from '../core/common/url.constants';
+import {UltilityService} from '../core/services/ultility.service';
 
 @Component({
   selector: 'app-main',
@@ -7,9 +10,12 @@ import { Component, OnInit } from '@angular/core';
 })
 export class MainComponent implements OnInit {
 
-  constructor() { }
+  constructor(private utilityservice:UltilityService) { }
 
   ngOnInit() {
   }
-
+  logout(){
+    localStorage.removeItem(SystemConstants.CURRENT_USER);
+    this.utilityservice.navigate(UrlConstants.LOGIN);
+  }
 }
