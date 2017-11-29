@@ -12,13 +12,20 @@ export class DataService {
   private headers: Headers
   constructor(private _http: Http, private _router: Router, private _authenService: AuthenService,
   private _notificationService: NotificationService, private _ultilityService:UltilityService
+  ) { 
+    this.headers = new Headers();
+    this.headers.append('Content-Type','application/json');
+  }
+  // get(uri: string) {
+  //   this.headers.delete("Authorization");
+  //   this.headers.append("Authorization", "Bearer" + this._authenService.getLoggedInUser().access_token)
+  //   return this._http.get(SystemConstants.BASE_API + uri, { headers: this.headers }).map(this.extractData);
 
-  ) { }
+  // }
   get(uri: string) {
     this.headers.delete("Authorization");
-    this.headers.append("Authorization", "Bearer" + this._authenService.getLoggedInUser().access_token)
+    this.headers.append("Authorization", "Bearer " + this._authenService.getLoggedInUser().access_token);
     return this._http.get(SystemConstants.BASE_API + uri, { headers: this.headers }).map(this.extractData);
-
   }
   post(uri: string, data?: any) {
     this.headers.delete("Authorization");
