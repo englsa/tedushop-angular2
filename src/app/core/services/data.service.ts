@@ -5,16 +5,16 @@ import { SystemConstants } from './../common/system.constants';
 import { AuthenService } from './authen.service';
 import { NotificationService } from './notification.service';
 import { UltilityService } from './ultility.service';
-import {Observable} from 'rxjs/Observable';
+import { Observable } from 'rxjs/Observable';
 import { MessageContstants } from './../common/message.constants';
 @Injectable()
 export class DataService {
   private headers: Headers
   constructor(private _http: Http, private _router: Router, private _authenService: AuthenService,
-  private _notificationService: NotificationService, private _ultilityService:UltilityService
-  ) { 
+    private _notificationService: NotificationService, private _ultilityService: UltilityService
+  ) {
     this.headers = new Headers();
-    this.headers.append('Content-Type','application/json');
+    this.headers.append('Content-Type', 'application/json');
   }
   // get(uri: string) {
   //   this.headers.delete("Authorization");
@@ -27,9 +27,14 @@ export class DataService {
     this.headers.append("Authorization", "Bearer " + this._authenService.getLoggedInUser().access_token);
     return this._http.get(SystemConstants.BASE_API + uri, { headers: this.headers }).map(this.extractData);
   }
+  // post(uri: string, data?: any) {
+  //   this.headers.delete("Authorization");
+  //   this.headers.append("Authorization", "Bearer" + this._authenService.getLoggedInUser().access_token)
+  //   return this._http.post(SystemConstants.BASE_API + uri, data, { headers: this.headers }).map(this.extractData);
+  // }
   post(uri: string, data?: any) {
     this.headers.delete("Authorization");
-    this.headers.append("Authorization", "Bearer" + this._authenService.getLoggedInUser().access_token)
+    this.headers.append("Authorization", "Bearer " + this._authenService.getLoggedInUser().access_token);
     return this._http.post(SystemConstants.BASE_API + uri, data, { headers: this.headers }).map(this.extractData);
   }
   put(uri: string, data?: any) {
@@ -52,17 +57,17 @@ export class DataService {
     let body = res.json();
     return body || {};
   }
-  public handleError(error:any){
-    if(error.status ==401){
+  public handleError(error: any) {
+    if (error.status == 401) {
       localStorage.removeItem(SystemConstants.CURRENT_USER);
       this._notificationService.printErrorMessage(MessageContstants.LOGIN_AGAIN_MSG)
       this._ultilityService.navigateToLogin();
-    }else{
-      let errMsg = (error.message)? error.message: 
-      error.status ? `${error.status} - ${error.statusText}`:'Lỗi hệ thống';
+    } else {
+      let errMsg = (error.message) ? error.message :
+        error.status ? `${error.status} - ${error.statusText}` : 'Lỗi hệ thống';
       this._notificationService.printErrorMessage(errMsg);
-      return Observable.throw (errMsg);
-      
+      return Observable.throw(errMsg);
+
     }
   }
 }
