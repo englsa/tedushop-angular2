@@ -37,9 +37,14 @@ export class DataService {
     this.headers.append("Authorization", "Bearer " + this._authenService.getLoggedInUser().access_token);
     return this._http.post(SystemConstants.BASE_API + uri, data, { headers: this.headers }).map(this.extractData);
   }
+  // put(uri: string, data?: any) {
+  //   this.headers.delete("Authorization");
+  //   this.headers.append("Authorization", "Bearer" + this._authenService.getLoggedInUser().access_token)
+  //   return this._http.put(SystemConstants.BASE_API + uri, data, { headers: this.headers }).map(this.extractData);
+  // }
   put(uri: string, data?: any) {
     this.headers.delete("Authorization");
-    this.headers.append("Authorization", "Bearer" + this._authenService.getLoggedInUser().access_token)
+    this.headers.append("Authorization", "Bearer " + this._authenService.getLoggedInUser().access_token);
     return this._http.put(SystemConstants.BASE_API + uri, data, { headers: this.headers }).map(this.extractData);
   }
   delete(uri: string, key: string, id: string) {

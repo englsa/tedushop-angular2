@@ -42,7 +42,7 @@
               <td>{{role.Name}}</td>
               <td>{{role.Description}}</td>
               <td>
-                <button class="btn btn-primary"><i class="fa fa-pencil-square-o"></i></button>
+                <button class="btn btn-primary" (click)="showEditModal(role.Id)"><i class="fa fa-pencil-square-o"></i></button>
                 <button class="btn btn-danger"><i class="fa fa-trash"></i></button>
               </td>
             </tr>
@@ -75,8 +75,8 @@
           <div class="form-group">
             <label class="control-label col-md-3 col-sm-3 col-xs-12">Tên nhóm</label>
             <div class="col-md-9 col-sm-9 col-xs-12">
-              <input type="hidden" [(ngModel)]="entity.id" name="id"/>
-              <input type="text" #name="ngModel" [(ngModel)]="entity.name" name="name" required minlength="3" class="form-control"/>
+              <input type="hidden" [(ngModel)]="entity.Id" name="id"/>
+              <input type="text" #name="ngModel" [(ngModel)]="entity.Name" name="name" required minlength="3" class="form-control"/>
               <small [hidden]="name.valid ||(name.pristine && !addEditForm.submitted)" class="text-danger" >
                 Bạn phải nhập tên ít nhất 3 ký tự
               </small>
@@ -85,7 +85,7 @@
           <div class="form-group">
             <label class="control-label col-md-3 col-sm-3 col-xs-12">Mô tả</label>
             <div class="col-md-9 col-sm-9 col-xs-12">
-              <textarea type="text" #description="ngModel" [(ngModel)]="entity.description" name="description" required minlength="3" class="form-control" rows="3"></textarea>
+              <textarea type="text" #description="ngModel" [(ngModel)]="entity.Description" name="description" required minlength="3" class="form-control" rows="3"></textarea>
               <small [hidden]="description.valid ||(description.pristine && !addEditForm.submitted)" class="text-danger" >
                 Bạn phải nhập mô tả
               </small>

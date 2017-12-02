@@ -30,7 +30,14 @@ export class RoleComponent implements OnInit {
         this.pageIndex = response.PageIndex;
         this.pageSize = response.PageSize;
         this.totalRows = response.TotalRows;
-        console.log(response);
+        //console.log(response);
+      });
+  }
+  loadRole(Id:any) {
+    this._dataService.get('/api/appRole/detail/'+Id)
+      .subscribe((response: any) => {
+       this.entity = response;
+        console.log(this.entity);
       });
   }
   pageChanged(event:any):void{
@@ -41,6 +48,10 @@ export class RoleComponent implements OnInit {
     this.entity = {};
     this.modalAddEdit.show();
   }
+  showEditModal(Id:any){
+    this.loadRole(Id);
+    this.modalAddEdit.show();
+  }
   saveChange(valid:boolean){
     if(valid){
       if(this.entity.Id == undefined){
@@ -49,6 +60,13 @@ export class RoleComponent implements OnInit {
           this.loadData();
           this.modalAddEdit.hide();
           this._notificatioService.printSuccessMessage(MessageContstants.CREATED_OK_MSG);
+        },error =>this._dataService.handleError(error));
+      }else{
+        this._dataService.put('/api/appRole/update',JSON.stringify(this.entity))
+        .subscribe((response:any)=>{
+          this.loadData();
+          this.modalAddEdit.hide();
+          this._notificatioService.printSuccessMessage(MessageContstants.UPDATED_OK_MSG);
         },error =>this._dataService.handleError(error));
       }
     }
