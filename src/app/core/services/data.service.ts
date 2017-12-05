@@ -70,27 +70,24 @@ export class DataService {
   //   return this._http.post(SystemConstants.BASE_API + uri, data, { headers: newHeader })
   //     .map(this.extractData);
   // }
-  postFile(uri: string, data?: any) {
-    let newHeader = new Headers();
-    newHeader.append("Authorization", "Bearer " + this._authenService.getLoggedInUser().access_token);
-    return this._http.post(SystemConstants.BASE_API + uri, data, { headers: newHeader })
-      .map(this.extractData);
-  }
+  
   private extractData(res: Response) {
     let body = res.json();
     return body || {};
   }
-  public handleError(error: any) {
-    if (error.status == 401) {
-      localStorage.removeItem(SystemConstants.CURRENT_USER);
-      this._notificationService.printErrorMessage(MessageContstants.LOGIN_AGAIN_MSG)
-      this._ultilityService.navigateToLogin();
-    } else {
-      let errMsg = (error.message) ? error.message :
-        error.status ? `${error.status} - ${error.statusText}` : 'Lỗi hệ thống';
-      this._notificationService.printErrorMessage(errMsg);
-      return Observable.throw(errMsg);
+   public handleError(error: any) {
+        if (error.status == 401) {
+            localStorage.removeItem(SystemConstants.CURRENT_USER);
+            this._notificationService.printErrorMessage(MessageContstants.LOGIN_AGAIN_MSG);
+            this._ultilityService.navigateToLogin();
+        }
+        else {
+            let errMsg = (error.message) ? error.message :
+                error.status ? `${error.status} - ${error.statusText}` : 'Lỗi hệ thống';
+            this._notificationService.printErrorMessage(errMsg);
+
+            return Observable.throw(errMsg);
+        }
 
     }
-  }
 }
