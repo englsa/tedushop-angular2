@@ -1,25 +1,40 @@
-import { Component, OnInit ,ViewChild} from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { DataService } from '../../core/services/data.service';
-import { ModalDirective } from 'ngx-bootstrap';
-import {NotificationService} from '../../core/services/notification.service';
-import {MessageContstants} from '../../core/common/message.constants';
+import { ModalDirective } from 'ngx-bootstrap/modal';
+import { NotificationService } from '../../core/services/notification.service';
+import { MessageContstants } from '../../core/common/message.constants';
+
+import { IMultiSelectOption } from 'angular-2-dropdown-multiselect';
 @Component({
   selector: 'app-user',
   templateUrl: './user.component.html',
   styleUrls: ['./user.component.css']
 })
 export class UserComponent implements OnInit {
-  @ViewChild('modalAddEdit') public modalAddEdit:ModalDirective;
+
+  @ViewChild('modalAddEdit') public modalAddEdit: ModalDirective;
+  public myRoles: string[] = [];
   public pageIndex: number = 1;
-  public pageSize: number = 10;
+  public pageSize: number = 20;
   public pageDisplay: number = 10;
-  public totalRows: number;
+  public totalRow: number;
   public filter: string = '';
   public users: any[];
-  public entity:any;
-  constructor(private _dataService: DataService , private _notificatioService:NotificationService) { }
+  public entity: any;
+
+  public allRoles: IMultiSelectOption[] = [];
+  public roles: any[];
+
+  public dateOptions: any = {
+    locale: { format: 'DD/MM/YYYY' },
+    alwaysShowCalendars: false,
+    singleDatePicker: true
+  };
+
+  constructor(private _dataService: DataService, private _notificationService: NotificationService) { }
 
   ngOnInit() {
+    this.loadRoles();
     this.loadData();
   }
 
@@ -29,55 +44,66 @@ export class UserComponent implements OnInit {
         this.users = response.Items;
         this.pageIndex = response.PageIndex;
         this.pageSize = response.PageSize;
-        this.totalRows = response.TotalRows;
-        //console.log(response);
+        this.totalRow = response.TotalRows;
       });
   }
-  loadRole(Id:any) {
-    this._dataService.get('/api/appUser/detail/'+Id)
+  loadRoles() {
+    this._dataService.get('/api/appRole/getlistall').subscribe((response: any[]) => {
+      this.allRoles = [];
+      for (let role of response) {
+        this.allRoles.push({ id: role.Name, name: role.Description });
+      }
+    }, error => this._dataService.handleError(error));
+  }
+  loadUserDetail(id: any) {
+    this._dataService.get('/api/appUser/detail/' + id)
       .subscribe((response: any) => {
-       this.entity = response;
+        this.entity = response;
         console.log(this.entity);
       });
   }
-  pageChanged(event:any):void{
+  pageChanged(event: any): void {
     this.pageIndex = event.page;
     this.loadData();
   }
-  showAddModal(){
+  showAddModal() {
     this.entity = {};
     this.modalAddEdit.show();
   }
-  showEditModal(Id:any){
-    this.loadRole(Id);
+  showEditModal(id: any) {
+    this.loadUserDetail(id);
     this.modalAddEdit.show();
   }
-  saveChange(valid:boolean){
-    if(valid){
-      if(this.entity.Id == undefined){
-        this._dataService.post('/api/appUser/add',JSON.stringify(this.entity))
-        .subscribe((response:any)=>{
-          this.loadData();
-          this.modalAddEdit.hide();
-          this._notificatioService.printSuccessMessage(MessageContstants.CREATED_OK_MSG);
-        },error =>this._dataService.handleError(error));
-      }else{
-        this._dataService.put('/api/appUser/update',JSON.stringify(this.entity))
-        .subscribe((response:any)=>{
-          this.loadData();
-          this.modalAddEdit.hide();
-          this._notificatioService.printSuccessMessage(MessageContstants.UPDATED_OK_MSG);
-        },error =>this._dataService.handleError(error));
+  saveChange(valid: boolean) {
+    if (valid) {
+      if (this.entity.Id == undefined) {
+        this._dataService.post('/api/appUser/add', JSON.stringify(this.entity))
+          .subscribe((response: any) => {
+            this.loadData();
+            this.modalAddEdit.hide();
+            this._notificationService.printSuccessMessage(MessageContstants.CREATED_OK_MSG);
+          }, error => this._dataService.handleError(error));
+      }
+      else {
+        this._dataService.put('/api/appUser/update', JSON.stringify(this.entity))
+          .subscribe((response: any) => {
+            this.loadData();
+            this.modalAddEdit.hide();
+            this._notificationService.printSuccessMessage(MessageContstants.UPDATED_OK_MSG);
+          }, error => this._dataService.handleError(error));
       }
     }
   }
-  DeleteItem(id:any){
-    this._notificatioService.printConfirmationDialog(MessageContstants.CONFIRM_DELETE_MSG,()=>this.deleteItemComfirm(id))
+  DeleteItem(id: any) {
+    this._notificationService.printConfirmationDialog(MessageContstants.CONFIRM_DELETE_MSG, () => this.deleteItemConfirm(id));
   }
-  deleteItemComfirm(id:any){
-    this._dataService.delete('/api/appUser/delete','id',id).subscribe((response:Response)=>{
-      this._notificatioService.printSuccessMessage(MessageContstants.DELETED_OK_MSG);
+  deleteItemConfirm(id: any) {
+    this._dataService.delete('/api/appUser/delete', 'id', id).subscribe((response: Response) => {
+      this._notificationService.printSuccessMessage(MessageContstants.DELETED_OK_MSG);
       this.loadData();
-    })
+    });
+  }
+  public selectGender(event) {
+    this.entity.Gender = event.target.value
   }
 }

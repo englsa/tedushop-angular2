@@ -64,12 +64,12 @@ export class DataService {
   //   return this._http.get(SystemConstants.BASE_API + uri, { headers: newHeader }).map(this.extractData);
 
   // }
-  // postFile(uri: string, data?: any) {
-  //   let newHeader = new Headers();
-  //   newHeader.append("Authorization", "Bearer " + this._authenService.getLoggedInUser().access_token);
-  //   return this._http.post(SystemConstants.BASE_API + uri, data, { headers: newHeader })
-  //     .map(this.extractData);
-  // }
+  postFile(uri: string, data?: any) {
+    let newHeader = new Headers();
+    newHeader.append("Authorization", "Bearer " + this._authenService.getLoggedInUser().access_token);
+    return this._http.post(SystemConstants.BASE_API + uri, data, { headers: newHeader })
+      .map(this.extractData);
+  }
   
   private extractData(res: Response) {
     let body = res.json();
