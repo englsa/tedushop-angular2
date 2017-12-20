@@ -5,6 +5,7 @@ import { NotificationService } from '../../core/services/notification.service';
 import { MessageContstants } from '../../core/common/message.constants';
 
 import { IMultiSelectOption } from 'angular-2-dropdown-multiselect';
+declare var moment:any;
 @Component({
   selector: 'app-user',
   templateUrl: './user.component.html',
@@ -59,6 +60,10 @@ export class UserComponent implements OnInit {
     this._dataService.get('/api/appUser/detail/' + id)
       .subscribe((response: any) => {
         this.entity = response;
+        for(let role of this.entity.Roles){
+          this.myRoles.push(role);
+        }
+        this.entity.BirthDay = moment(new Date(this.entity.BirthDay)).format('DD/MM/YYYY');
         console.log(this.entity);
       });
   }
