@@ -47,7 +47,7 @@ export class UserComponent implements OnInit {
     this.loadRoles();
     this.loadData();
   }
-
+  
   loadData() {
     this._dataService.get('/api/appUser/getlistpaging?page=' + this.pageIndex + '&pageSize=' + this.pageSize + '&filter=' + this.filter)
       .subscribe((response: any) => {
