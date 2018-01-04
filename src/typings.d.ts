@@ -4,4 +4,5 @@ interface NodeModule {
   id: string;
 }
 declare var tinymce: any;
+declare var moment: any;
 
