@@ -5,6 +5,8 @@ import { NotificationService } from '../../core/services/notification.service';
 import { MessageContstants } from '../../core/common/message.constants';
 import { SystemConstants } from '../../core/common/system.constants';
 import { UploadService } from '../../core/services/upload.service';
+import { AuthenService } from '../../core/services/authen.service';
+import { UltilityService } from '../../core/services/ultility.service';
 import { IMultiSelectOption } from 'angular-2-dropdown-multiselect';
 declare var moment: any;
 @Component({
@@ -34,7 +36,12 @@ export class UserComponent implements OnInit {
     singleDatePicker: true
   };
 
-  constructor(private _dataService: DataService, private _notificationService: NotificationService,private _uploadService :UploadService) { }
+  constructor(private _dataService: DataService, private _notificationService: NotificationService,
+    private _uploadService :UploadService, public _authenService:AuthenService, private _utilityService:UltilityService) {
+      if(_authenService.checkAccess('USER')==false){
+        _utilityService.navigateToLogin();
+      }
+     }
 
   ngOnInit() {
     this.loadRoles();
@@ -62,6 +69,7 @@ export class UserComponent implements OnInit {
     this._dataService.get('/api/appUser/detail/' + id)
       .subscribe((response: any) => {
         this.entity = response;
+        this.myRoles = [];
         for (let role of this.entity.Roles) {
           this.myRoles.push(role);
         }
@@ -127,5 +135,8 @@ export class UserComponent implements OnInit {
   }
   public selectGender(event) {
     this.entity.Gender = event.target.value
+  }
+  public selectedDate(value: any) {
+    this.entity.BirthDay =  moment(value.end._d).format('DD/MM/YYYY');
   }
 }
