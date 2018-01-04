@@ -30,11 +30,20 @@ export class ProductComponent implements OnInit {
   public products: any[];
   public productCategories: any[];
   public checkedItems: any[];
- /*Product manage */
- public imageEntity: any = {};
- public productImages: any = [];
- @ViewChild('imageManageModal') public imageManageModal: ModalDirective;
- @ViewChild("imagePath") imagePath;
+  /*Product manage */
+  public imageEntity: any = {};
+  public productImages: any = [];
+  @ViewChild('imageManageModal') public imageManageModal: ModalDirective;
+  @ViewChild("imagePath") imagePath;
+  public sizeId: number = null;
+  public colorId: number = null;
+  public colors: any[];
+  public sizes: any[];
+
+  /*Quantity manage */
+  @ViewChild('quantityManageModal') public quantityManageModal: ModalDirective;
+  public quantityEntity: any = {};
+  public productQuantities: any = [];
 
   constructor(public _authenService: AuthenService,
     private _dataService: DataService,
@@ -178,5 +187,54 @@ export class ProductComponent implements OnInit {
         });
       }
     }
+  }
+  /*Quản lý số lượng */
+  public showQuantityManage(id: number) {
+    this.quantityEntity = {
+      ProductId: id
+    };
+    this.loadColors();
+    this.loadSizes();
+    this.loadProductQuantities(id);
+    this.quantityManageModal.show();
+
+  }
+  public loadColors() {
+    this._dataService.get('/api/productQuantity/getcolors').subscribe((response: any[]) => {
+      this.colors = response;
+    }, error => this._dataService.handleError(error));
+  }
+  public loadSizes() {
+    this._dataService.get('/api/productQuantity/getsizes').subscribe((response: any[]) => {
+      this.sizes = response;
+    }, error => this._dataService.handleError(error));
+  }
+
+  public loadProductQuantities(id: number) {
+    this._dataService.get('/api/productQuantity/getall?productId=' + id + '&sizeId=' + this.sizeId + '&colorId=' + this.colorId).subscribe((response: any[]) => {
+      this.productQuantities = response;
+    }, error => this._dataService.handleError(error));
+  }
+
+  public saveProductQuantity(isValid: boolean) {
+    if (isValid) {
+      this._dataService.post('/api/productQuantity/add', JSON.stringify(this.quantityEntity)).subscribe((response: any) => {
+        this.loadProductQuantities(this.quantityEntity.ProductId);
+        this.quantityEntity = {
+          ProductId: this.quantityEntity.ProductId
+        };
+        this.notificationService.printSuccessMessage(MessageContstants.CREATED_OK_MSG);
+      }, error => this._dataService.handleError(error));
+    }
+  }
+
+   public deleteQuantity(productId: number, colorId: string, sizeId: string) {
+    var parameters = { "productId": productId, "sizeId": sizeId, "colorId": colorId };
+    this.notificationService.printConfirmationDialog(MessageContstants.CONFIRM_DELETE_MSG, () => {
+      this._dataService.deleteWithMultiParams('/api/productQuantity/delete', parameters).subscribe((response: any) => {
+        this.notificationService.printSuccessMessage(MessageContstants.DELETED_OK_MSG);
+        this.loadProductQuantities(productId);
+      }, error => this._dataService.handleError(error));
+    });
   }
 }
