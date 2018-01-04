@@ -14,6 +14,7 @@ import { PaginationModule } from 'ngx-bootstrap';
   declarations: [
     AppComponent
     
+    
   ],
   imports: [
     BrowserModule,
