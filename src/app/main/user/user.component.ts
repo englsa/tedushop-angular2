@@ -1,14 +1,18 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { DataService } from '../../core/services/data.service';
 import { ModalDirective } from 'ngx-bootstrap/modal';
 import { NotificationService } from '../../core/services/notification.service';
-import { MessageContstants } from '../../core/common/message.constants';
-import { SystemConstants } from '../../core/common/system.constants';
 import { UploadService } from '../../core/services/upload.service';
 import { AuthenService } from '../../core/services/authen.service';
 import { UltilityService } from '../../core/services/ultility.service';
+
+import { MessageContstants } from '../../core/common/message.constants';
+import { SystemConstants } from '../../core/common/system.constants';
+
 import { IMultiSelectOption } from 'angular-2-dropdown-multiselect';
-declare var moment: any;
+
+
 @Component({
   selector: 'app-user',
   templateUrl: './user.component.html',
@@ -26,7 +30,7 @@ export class UserComponent implements OnInit {
   public filter: string = '';
   public users: any[];
   public entity: any;
-  public baseUrl:string  = SystemConstants.BASE_API;
+  public baseFolder: string = SystemConstants.BASE_API;
   public allRoles: IMultiSelectOption[] = [];
   public roles: any[];
 
@@ -36,18 +40,21 @@ export class UserComponent implements OnInit {
     singleDatePicker: true
   };
 
-  constructor(private _dataService: DataService, private _notificationService: NotificationService,
-    private _uploadService :UploadService, public _authenService:AuthenService, private _utilityService:UltilityService) {
-      if(_authenService.checkAccess('USER')==false){
-        _utilityService.navigateToLogin();
-      }
-     }
+  constructor(private _dataService: DataService,
+    private _notificationService: NotificationService,
+    private _utilityService: UltilityService,
+    private _uploadService: UploadService, public _authenService: AuthenService) {
+
+    if (_authenService.checkAccess('USER') == false) {
+      _utilityService.navigateToLogin();
+    }
+  }
 
   ngOnInit() {
     this.loadRoles();
     this.loadData();
   }
-  
+
   loadData() {
     this._dataService.get('/api/appUser/getlistpaging?page=' + this.pageIndex + '&pageSize=' + this.pageSize + '&filter=' + this.filter)
       .subscribe((response: any) => {
@@ -74,7 +81,8 @@ export class UserComponent implements OnInit {
           this.myRoles.push(role);
         }
         this.entity.BirthDay = moment(new Date(this.entity.BirthDay)).format('DD/MM/YYYY');
-        console.log(this.entity);
+
+        console.log(this.entity.BirthDay);
       });
   }
   pageChanged(event: any): void {
@@ -89,29 +97,30 @@ export class UserComponent implements OnInit {
     this.loadUserDetail(id);
     this.modalAddEdit.show();
   }
-  saveChange(valid: boolean) {
-    if (valid) {
+  saveChange(form: NgForm) {
+    if (form.valid) {
       this.entity.Roles = this.myRoles;
       let fi = this.avatar.nativeElement;
       if (fi.files.length > 0) {
         this._uploadService.postWithFile('/api/upload/saveImage?type=avatar', null, fi.files)
-        .then((imageUrl: string) => {
-          this.entity.Avatar = imageUrl;
-        }).then(() => {
-          this.saveData();
-        });
+          .then((imageUrl: string) => {
+            this.entity.Avatar = imageUrl;
+          }).then(() => {
+            this.saveData(form);
+          });
       }
-       else {
-        this.saveData();
+      else {
+        this.saveData(form);
       }
     }
   }
-  saveData() {
+  private saveData(form: NgForm) {
     if (this.entity.Id == undefined) {
       this._dataService.post('/api/appUser/add', JSON.stringify(this.entity))
         .subscribe((response: any) => {
           this.loadData();
           this.modalAddEdit.hide();
+          form.resetForm();
           this._notificationService.printSuccessMessage(MessageContstants.CREATED_OK_MSG);
         }, error => this._dataService.handleError(error));
     }
@@ -120,11 +129,12 @@ export class UserComponent implements OnInit {
         .subscribe((response: any) => {
           this.loadData();
           this.modalAddEdit.hide();
+          form.resetForm();
           this._notificationService.printSuccessMessage(MessageContstants.UPDATED_OK_MSG);
         }, error => this._dataService.handleError(error));
     }
   }
-  DeleteItem(id: any) {
+  deleteItem(id: any) {
     this._notificationService.printConfirmationDialog(MessageContstants.CONFIRM_DELETE_MSG, () => this.deleteItemConfirm(id));
   }
   deleteItemConfirm(id: any) {
@@ -136,7 +146,8 @@ export class UserComponent implements OnInit {
   public selectGender(event) {
     this.entity.Gender = event.target.value
   }
+
   public selectedDate(value: any) {
-    this.entity.BirthDay =  moment(value.end._d).format('DD/MM/YYYY');
+    this.entity.BirthDay = moment(value.end._d).format('DD/MM/YYYY');
   }
 }
